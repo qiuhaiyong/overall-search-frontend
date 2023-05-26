@@ -2,26 +2,28 @@
   <div class="index-page">
     <a-input-search placeholder="input search text" enter-button="Search" size="large" @search="onSearch" v-model="searchParams.searchText" />
     <MyDivider />
-    <a-tabs v-model="activeKey" @change="callback">
+    <a-tabs v-model="activeKey" @change="onTabChange">
       <a-tab-pane key="post" tab="文章">
-        <PostList />
+        <PostList :postList="postList" />
       </a-tab-pane>
       <a-tab-pane key="picture" tab="图片" force-render>
         <PictureList />
       </a-tab-pane>
       <a-tab-pane key="user" tab="用户">
-        <UserList />
+        <UserList :userList="userList" />
       </a-tab-pane>
     </a-tabs>
-    {{ this.$route.params }},{{ this.$route.query }}
   </div>
 </template>
 
 <script>
-import PostList from './PostList'
-import UserList from './UserList'
-import PictureList from './PictureList'
-import MyDivider from './MyDivider'
+// 引入组件
+import PostList from '../components/PostList'
+import UserList from '../components/UserList'
+import PictureList from '../components/PictureList'
+import MyDivider from '../components/MyDivider'
+// 引入axiox
+import myAxios from '../plugins/myAxios'
 export default {
   name: 'IndexPage',
   components: {
@@ -34,10 +36,12 @@ export default {
     return {
       activeKey: this.$route.params.category || 'post',
       searchParams: {
-        searchText: this.$route.query.searchText,
+        searchText: this.$route.query.searchText || '',
         pageSize: 10,
         pageNum: 1
-      }
+      },
+      postList: [],
+      userList: []
     }
   },
   methods: {
@@ -49,18 +53,37 @@ export default {
           query: { ...this.searchParams }
         })
       }
-      console.log(this.$router)
-      console.log(this.$route)
+      // console.log(this.$router)
+      // console.log(this.$route)
       // alert(value)
     },
-    callback(activeKey) {
+    onTabChange(activeKey) {
       this.activeKey = activeKey
       this.$router.push({
         path: `/${activeKey}`,
         query: { ...this.searchParams }
       })
-      console.log(activeKey)
+      // console.log(activeKey)
     }
+  },
+
+  mounted() {
+    myAxios.post('/post/list/page/vo', {}).then(
+      response => {
+        this.postList = response.records
+      },
+      error => {
+        console.log(error)
+      }
+    )
+    myAxios.post('/user/list/page/vo', {}).then(
+      response => {
+        this.userList = response.records
+      },
+      error => {
+        console.log(error)
+      }
+    )
   }
 }
 </script>
