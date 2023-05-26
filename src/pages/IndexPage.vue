@@ -1,6 +1,6 @@
 <template>
   <div class="index-page">
-    <a-input-search placeholder="input search text" enter-button="Search" size="large" @search="onSearch" v-model="searchText" />
+    <a-input-search placeholder="input search text" enter-button="Search" size="large" @search="onSearch" v-model="searchParams.searchText" />
     <MyDivider />
     <a-tabs v-model="activeKey" @change="callback">
       <a-tab-pane key="post" tab="文章">
@@ -33,18 +33,22 @@ export default {
   data() {
     return {
       activeKey: this.$route.params.category || 'post',
-      searchText: this.$route.query.searchText
+      searchParams: {
+        searchText: this.$route.query.searchText,
+        pageSize: 10,
+        pageNum: 1
+      }
     }
   },
   methods: {
     onSearch(searchText) {
-      if (!this.$route.fullPath === `/${this.activeKey}?searchText=${searchText}`) {
+      // 如果路由相同 不重复跳转
+      if (!this.$route.fullPath === `/${this.activeKey}?searchText=${searchText}` || this.$route.fullPath === '/') {
         this.$router.push({
           path: `/${this.activeKey}`,
-          query: { searchText }
+          query: { ...this.searchParams }
         })
       }
-
       console.log(this.$router)
       console.log(this.$route)
       // alert(value)
@@ -53,9 +57,7 @@ export default {
       this.activeKey = activeKey
       this.$router.push({
         path: `/${activeKey}`,
-        query: {
-          searchText: this.searchText
-        }
+        query: { ...this.searchParams }
       })
       console.log(activeKey)
     }
