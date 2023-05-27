@@ -10,7 +10,6 @@
         </a-card>
       </a-list-item>
     </a-list>
-    {{ userList }}
   </div>
 </template>
 

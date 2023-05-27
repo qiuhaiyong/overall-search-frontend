@@ -7,7 +7,7 @@
         <PostList :postList="postList" />
       </a-tab-pane>
       <a-tab-pane key="picture" tab="图片" force-render>
-        <PictureList />
+        <PictureList :pictureList="pictureList" />
       </a-tab-pane>
       <a-tab-pane key="user" tab="用户">
         <UserList :userList="userList" />
@@ -41,7 +41,8 @@ export default {
         pageNum: 1
       },
       postList: [],
-      userList: []
+      userList: [],
+      pictureList: []
     }
   },
   methods: {
@@ -53,6 +54,7 @@ export default {
           query: { ...this.searchParams }
         })
       }
+      this.getDate()
       // console.log(this.$router)
       // console.log(this.$route)
       // alert(value)
@@ -63,27 +65,98 @@ export default {
         path: `/${activeKey}`,
         query: { ...this.searchParams }
       })
+      this.getDate()
       // console.log(activeKey)
+    },
+    searchPost() {
+      myAxios.post('/post/list/page/vo', { ...this.searchParams }).then(
+        response => {
+          this.postList = response.records
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    },
+    searchPicture() {
+      myAxios.post('/picture/list/page/vo', { ...this.searchParams }).then(
+        response => {
+          this.pictureList = response.records
+        },
+        error => {
+          console.log(error)
+        }
+      )
+    },
+    searchUser() {
+      myAxios
+        .post('/user/list/page/vo', {
+          userName: this.searchParams.searchText,
+          ...this.searchParams
+        })
+        .then(
+          response => {
+            this.userList = response.records
+          },
+          error => {
+            console.log(error)
+          }
+        )
+    },
+
+    // 封装查询目录
+    getDate() {
+      switch (this.activeKey) {
+        case 'post':
+          this.searchPost()
+          break
+        case 'picture':
+          this.searchPicture()
+          break
+        case 'user':
+          this.searchUser()
+          break
+        default:
+          break
+      }
     }
   },
 
   mounted() {
-    myAxios.post('/post/list/page/vo', {}).then(
-      response => {
-        this.postList = response.records
-      },
-      error => {
-        console.log(error)
-      }
-    )
-    myAxios.post('/user/list/page/vo', {}).then(
-      response => {
-        this.userList = response.records
-      },
-      error => {
-        console.log(error)
-      }
-    )
+    // myAxios.post('/post/list/page/vo', {}).then(
+    //   response => {
+    //     this.postList = response.records
+    //   },
+    //   error => {
+    //     console.log(error)
+    //   }
+    // )
+    // myAxios.post('/user/list/page/vo', {}).then(
+    //   response => {
+    //     this.userList = response.records
+    //   },
+    //   error => {
+    //     console.log(error)
+    //   }
+    // )
+    // myAxios
+    //   .post('/picture/list/page/vo', {
+    //     searchText: '小黑子'
+    //   })
+    //   .then(
+    //     response => {
+    //       this.pictureList = response.records
+    //     },
+    //     error => {
+    //       console.log(error)
+    //     }
+    //   )
+  },
+  created() {
+    // 刷新的时候 searchParams同步路由中的数据 再调用接口进行查询
+    if (this.searchParams.searchText) {
+      this.getDate()
+    }
   }
 }
 </script>

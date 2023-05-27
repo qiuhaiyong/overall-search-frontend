@@ -8,7 +8,6 @@
         </a-list-item-meta>
       </a-list-item>
     </a-list>
-    {{ postList }}
   </div>
 </template>
 
