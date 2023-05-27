@@ -123,34 +123,18 @@ export default {
   },
 
   mounted() {
-    // myAxios.post('/post/list/page/vo', {}).then(
-    //   response => {
-    //     this.postList = response.records
-    //   },
-    //   error => {
-    //     console.log(error)
-    //   }
-    // )
-    // myAxios.post('/user/list/page/vo', {}).then(
-    //   response => {
-    //     this.userList = response.records
-    //   },
-    //   error => {
-    //     console.log(error)
-    //   }
-    // )
-    // myAxios
-    //   .post('/picture/list/page/vo', {
-    //     searchText: '小黑子'
-    //   })
-    //   .then(
-    //     response => {
-    //       this.pictureList = response.records
-    //     },
-    //     error => {
-    //       console.log(error)
-    //     }
-    //   )
+    myAxios
+      .post('/search/all', {
+        searchText: '张三'
+      })
+      .then(
+        response => {
+          console.log(response)
+        },
+        error => {
+          console.log(error)
+        }
+      )
   },
   created() {
     // 刷新的时候 searchParams同步路由中的数据 再调用接口进行查询
