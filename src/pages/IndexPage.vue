@@ -24,6 +24,7 @@ import PictureList from '../components/PictureList'
 import MyDivider from '../components/MyDivider'
 // 引入axiox
 import myAxios from '../plugins/myAxios'
+import { message } from 'ant-design-vue'
 export default {
   name: 'IndexPage',
   components: {
@@ -54,10 +55,7 @@ export default {
           query: { ...this.searchParams }
         })
       }
-      this.getDate()
-      // console.log(this.$router)
-      // console.log(this.$route)
-      // alert(value)
+      this.searchDate()
     },
     onTabChange(activeKey) {
       this.activeKey = activeKey
@@ -65,81 +63,106 @@ export default {
         path: `/${activeKey}`,
         query: { ...this.searchParams }
       })
-      this.getDate()
-      // console.log(activeKey)
+      this.searchDate()
     },
-    searchPost() {
-      myAxios.post('/post/list/page/vo', { ...this.searchParams }).then(
-        response => {
-          this.postList = response.records
-        },
-        error => {
-          console.log(error)
-        }
-      )
-    },
-    searchPicture() {
-      myAxios.post('/picture/list/page/vo', { ...this.searchParams }).then(
-        response => {
-          this.pictureList = response.records
-        },
-        error => {
-          console.log(error)
-        }
-      )
-    },
-    searchUser() {
+    // searchPost() {
+    //   myAxios.post('/post/list/page/vo', { ...this.searchParams }).then(
+    //     response => {
+    //       this.postList = response.records
+    //     },
+    //     error => {
+    //       console.log(error)
+    //     }
+    //   )
+    // },
+    // searchPicture() {
+    //   myAxios.post('/picture/list/page/vo', { ...this.searchParams }).then(
+    //     response => {
+    //       this.pictureList = response.records
+    //     },
+    //     error => {
+    //       console.log(error)
+    //     }
+    //   )
+    // },
+    // searchUser() {
+    //   myAxios
+    //     .post('/user/list/page/vo', {
+    //       userName: this.searchParams.searchText,
+    //       ...this.searchParams
+    //     })
+    //     .then(
+    //       response => {
+    //         this.userList = response.records
+    //       },
+    //       error => {
+    //         console.log(error)
+    //       }
+    //     )
+    // },
+
+    // 封装查询
+    searchDate() {
+      if (!this.activeKey) {
+        message.error('类型为空')
+      }
+      if (!this.searchParams.searchText) {
+        return
+      }
       myAxios
-        .post('/user/list/page/vo', {
-          userName: this.searchParams.searchText,
-          ...this.searchParams
+        .post('/search/all', {
+          ...this.searchParams,
+          type: this.activeKey
         })
         .then(
           response => {
-            this.userList = response.records
+            switch (this.activeKey) {
+              case 'user':
+                this.userList = response.dataList
+                break
+              case 'post':
+                this.postList = response.dataList
+                break
+              case 'picture':
+                this.pictureList = response.dataList
+                break
+              default:
+                break
+            }
+            console.log(response)
           },
           error => {
             console.log(error)
           }
         )
     },
-
-    // 封装查询目录
-    getDate() {
-      switch (this.activeKey) {
-        case 'post':
-          this.searchPost()
-          break
-        case 'picture':
-          this.searchPicture()
-          break
-        case 'user':
-          this.searchUser()
-          break
-        default:
-          break
+    searchAllDate() {
+      if (!this.searchParams.searchText) {
+        alert('搜索数据为空')
+        return
       }
+      myAxios
+        .post('/search/all', {
+          ...this.searchParams
+        })
+        .then(
+          response => {
+            this.userList = response.userList
+            this.postList = response.postList
+            this.pictureList = response.pictureList
+          },
+          error => {
+            console.log(error)
+          }
+        )
     }
   },
 
-  mounted() {
-    myAxios
-      .post('/search/all', {
-        searchText: '张三'
-      })
-      .then(
-        response => {
-          console.log(response)
-        },
-        error => {
-          console.log(error)
-        }
-      )
-  },
+  mounted() {},
   created() {
     // 刷新的时候 searchParams同步路由中的数据 再调用接口进行查询
     if (this.searchParams.searchText) {
-      this.getDate()
+      this.searchDate()
     }
   }
 }
